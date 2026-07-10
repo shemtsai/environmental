@@ -1,0 +1,510 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Antimicrobial Emissions Calculator</title>
+    <style>
+        :root {
+            --primary-color: #0056b3;
+            --primary-hover: #004494;
+            --secondary-color: #f8f9fa;
+            --text-color: #333333;
+            --text-muted: #6c757d;
+            --border-color: #dee2e6;
+            --success-color: #28a745;
+            --danger-color: #dc3545;
+            --bg-color: #e9ecef;
+            --card-bg: #ffffff;
+            --radius: 8px;
+            --shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+            --transition: all 0.2s ease-in-out;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            line-height: 1.6;
+            padding: 2rem 1rem;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: 1fr 350px;
+            gap: 2rem;
+            align-items: start;
+        }
+
+        @media (max-width: 900px) {
+            .container {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        header {
+            grid-column: 1 / -1;
+            margin-bottom: 1rem;
+        }
+
+        h1 {
+            color: var(--primary-color);
+            font-size: 1.75rem;
+            margin-bottom: 0.5rem;
+        }
+
+        p.subtitle {
+            color: var(--text-muted);
+            font-size: 1rem;
+        }
+
+        .card {
+            background-color: var(--card-bg);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            padding: 1.5rem;
+            border: 1px solid var(--border-color);
+        }
+
+        .card-title {
+            font-size: 1.25rem;
+            margin-bottom: 1rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 2px solid var(--secondary-color);
+            color: var(--primary-color);
+        }
+
+        /* Form Controls */
+        .form-group {
+            margin-bottom: 1.25rem;
+        }
+
+        label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            font-size: 0.9rem;
+        }
+
+        select, input[type="number"] {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            font-size: 1rem;
+            transition: var(--transition);
+        }
+
+        select:focus, input[type="number"]:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(0, 86, 179, 0.1);
+        }
+
+        /* Dynamic Rows */
+        .medication-row {
+            background-color: var(--secondary-color);
+            padding: 1rem;
+            border-radius: var(--radius);
+            margin-bottom: 1rem;
+            border: 1px solid var(--border-color);
+            display: grid;
+            grid-template-columns: 2fr 1fr auto;
+            gap: 1rem;
+            align-items: end;
+        }
+
+        @media (max-width: 600px) {
+            .medication-row {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .btn {
+            padding: 0.75rem 1.25rem;
+            border: none;
+            border-radius: 4px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .btn-primary {
+            background-color: var(--primary-color);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: var(--primary-hover);
+        }
+
+        .btn-danger {
+            background-color: transparent;
+            color: var(--danger-color);
+            border: 1px solid var(--danger-color);
+            padding: 0.5rem 1rem;
+        }
+
+        .btn-danger:hover {
+            background-color: var(--danger-color);
+            color: white;
+        }
+
+        .btn-secondary {
+            background-color: var(--text-muted);
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background-color: #5a6268;
+        }
+
+        .actions {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 1rem;
+        }
+
+        /* Results Panel */
+        .results-panel {
+            position: sticky;
+            top: 2rem;
+        }
+
+        .result-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.75rem 0;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .result-item:last-child {
+            border-bottom: none;
+        }
+
+        .result-label {
+            font-weight: 500;
+            color: var(--text-muted);
+            font-size: 0.9rem;
+        }
+
+        .result-value {
+            font-weight: 700;
+            font-size: 1.1rem;
+            color: var(--text-color);
+        }
+
+        .unit {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            font-weight: normal;
+            margin-left: 0.25rem;
+        }
+
+        .grand-total {
+            background-color: rgba(0, 86, 179, 0.05);
+            padding: 1rem;
+            border-radius: 4px;
+            margin-top: 1rem;
+            border-left: 4px solid var(--primary-color);
+        }
+
+        .grand-total .result-value {
+            color: var(--primary-color);
+            font-size: 1.25rem;
+        }
+
+        .row-metrics {
+            grid-column: 1 / -1;
+            display: flex;
+            gap: 1.5rem;
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            padding-top: 0.5rem;
+            border-top: 1px dashed var(--border-color);
+            margin-top: 0.5rem;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 2rem;
+            color: var(--text-muted);
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <header>
+        <h1>Antimicrobial Emissions Calculator</h1>
+        <p class="subtitle">Clinical decision support tool for evaluating environmental impacts of antimicrobial regimens.</p>
+    </header>
+
+    <main>
+        <div class="card">
+            <div class="form-group">
+                <label for="calculatorType">Calculation Granularity Level</label>
+                <select id="calculatorType" onchange="handleTypeChange()">
+                    <option value="DOT">Level 1: Days of Therapy (DOT)</option>
+                    <option value="Dose">Level 2: Standard Dose</option>
+                    <option value="Product">Level 3: Specific Formulation (Drug Product)</option>
+                </select>
+            </div>
+
+            <h2 class="card-title">Regimen Inputs</h2>
+            <div id="medicationList">
+                </div>
+
+            <div class="actions">
+                <button class="btn btn-primary" onclick="addRow()">+ Add Agent</button>
+                <button class="btn btn-secondary" onclick="resetCalculator()">Reset All</button>
+            </div>
+        </div>
+    </main>
+
+    <aside class="results-panel">
+        <div class="card">
+            <h2 class="card-title">Equivalency Totals</h2>
+            
+            <div class="grand-total">
+                <div class="result-label">CO2 Equivalent</div>
+                <div class="result-value" id="totalCO2">0.0000 <span class="unit">MT</span></div>
+            </div>
+
+            <div class="result-item" style="margin-top: 1rem;">
+                <span class="result-label">Total Waste Generated</span>
+                <span class="result-value" id="totalMass">0.0000 <span class="unit">kg</span></span>
+            </div>
+
+            <div class="result-item">
+                <span class="result-label">Miles Driven</span>
+                <span class="result-value" id="totalMiles">0.00</span>
+            </div>
+
+            <div class="result-item">
+                <span class="result-label">Gallons of Gas Consumed</span>
+                <span class="result-value" id="totalGas">0.00</span>
+            </div>
+
+            <div class="result-item">
+                <span class="result-label">Pounds of Coal Burned</span>
+                <span class="result-value" id="totalCoal">0.00</span>
+            </div>
+
+            <div class="result-item">
+                <span class="result-label">Smartphones Charged</span>
+                <span class="result-value" id="totalPhones">0</span>
+            </div>
+        </div>
+    </aside>
+</div>
+
+<script>
+    /**
+     * REFERENCE DATABASE
+     * Data sourced from available worksheet extracts. 
+     * Schema: { co2: MetricTons, mass: kg, miles: Mi, gas: Gal, coal: Lbs, phones: Count }
+     */
+    const emissionFactors = {
+        "DOT": {
+            "Acyclovir": { co2: 0.0001, mass: 0.0002, miles: 0.25, gas: 0.01, coal: 0.1, phones: 12 },
+            "Amikacin": { co2: 0.0001, mass: 0.0002, miles: 0.25, gas: 0.01, coal: 0.1, phones: 12 },
+            "Amphotericin B liposomal (Ambisome)": { co2: 0.0001, mass: 0.0002, miles: 0.25, gas: 0.01, coal: 0.1, phones: 12 },
+            "Ampicillin": { co2: 0.0001, mass: 0.0002, miles: 0.25, gas: 0.01, coal: 0.1, phones: 12 },
+            "Ampicillin-sulbactam": { co2: 0.0001, mass: 0.0002, miles: 0.25, gas: 0.01, coal: 0.1, phones: 12 }
+            // Note: Replace stub DOT data above with exact factors from full 'All Antimicrobial Agents' list
+        },
+        "Dose": {
+            "Acyclovir 250 mg": { co2: 0.00005, mass: 0.0001, miles: 0.12, gas: 0.005, coal: 0.05, phones: 6 },
+            "Acyclovir 500 mg": { co2: 0.00008, mass: 0.00015, miles: 0.18, gas: 0.008, coal: 0.08, phones: 9 },
+            "Amikacin 1200 mg": { co2: 0.0001, mass: 0.0002, miles: 0.25, gas: 0.01, coal: 0.1, phones: 12 },
+            "Ampicillin 2 g": { co2: 0.0001, mass: 0.0002, miles: 0.25, gas: 0.01, coal: 0.1, phones: 12 }
+            // Note: Replace stub Dose data above with exact factors from full 'All Drug Product Doses' list
+        },
+        "Product": {
+            "Acyclovir 250 mg/ 50 mL": { co2: 5.2826849500000009e-06, mass: 1.0565369900000002e-05, miles: 0.12462999999999999, gas: 0.24925999999999998, coal: 0.113, phones: 60 },
+            "Vancomycin 500 mg/ 100 mL frozen premix": { co2: 1.4127190016666669e-05, mass: 2.8254380033333339e-05, miles: 0.086481666666666651, gas: 0.1729633333333333, coal: 0.150, phones: 75 },
+            "Vancomycin 750 mg/ 150 mL frozen premix": { co2: 2.5370528683333338e-05, mass: 5.0741057366666675e-05, miles: 0.098448333333333318, gas: 0.19689666666666664, coal: 0.180, phones: 90 },
+            "Vancomycin 1 g/ 200 mL frozen premix": { co2: 2.482195308333334e-05, mass: 4.9643906166666679e-05, miles: 0.0953083333333333, gas: 0.1906166666666666, coal: 0.175, phones: 88 },
+            "Remdesivir 100 mg/ 250 mL": { co2: 1.5e-05, mass: 3.0e-05, miles: 0.10, gas: 0.20, coal: 0.16, phones: 80 }
+            // Note: Partial real data applied from snippets. Expand with full 'All Drug Products' list.
+        }
+    };
+
+    // Application State
+    let state = {
+        type: 'DOT', // 'DOT', 'Dose', 'Product'
+        rows: []     // { id, agentKey, quantity }
+    };
+
+    let rowCounter = 0;
+
+    // Initialization
+    window.onload = () => {
+        handleTypeChange();
+    };
+
+    /**
+     * Handles switching between calculation levels
+     */
+    function handleTypeChange() {
+        const typeSelect = document.getElementById('calculatorType');
+        state.type = typeSelect.value;
+        state.rows = []; // Clear current rows on type change
+        document.getElementById('medicationList').innerHTML = '';
+        addRow(); // Initialize with one empty row
+    }
+
+    /**
+     * Adds a new input row to the regimen list
+     */
+    function addRow() {
+        const rowId = `row_${rowCounter++}`;
+        state.rows.push({ id: rowId, agentKey: '', quantity: 0 });
+        renderRows();
+    }
+
+    /**
+     * Removes a specific input row
+     */
+    function removeRow(rowId) {
+        state.rows = state.rows.filter(r => r.id !== rowId);
+        renderRows();
+        calculateTotals();
+    }
+
+    /**
+     * Updates state when user selects a drug or changes quantity
+     */
+    function updateRowData(rowId, field, value) {
+        const row = state.rows.find(r => r.id === rowId);
+        if (row) {
+            row[field] = field === 'quantity' ? parseFloat(value) || 0 : value;
+            calculateTotals();
+            updateRowMetricsUI(row);
+        }
+    }
+
+    /**
+     * Renders the dynamic list of regimen inputs
+     */
+    function renderRows() {
+        const container = document.getElementById('medicationList');
+        container.innerHTML = '';
+
+        if (state.rows.length === 0) {
+            container.innerHTML = `<div class="empty-state">No agents added. Click '+ Add Agent' to begin.</div>`;
+            return;
+        }
+
+        const availableAgents = Object.keys(emissionFactors[state.type]);
+        const inputLabel = state.type === 'DOT' ? 'Days of Therapy' : 'Total Doses';
+
+        state.rows.forEach(row => {
+            const rowDiv = document.createElement('div');
+            rowDiv.className = 'medication-row';
+            
+            // Build Dropdown Options
+            let optionsHtml = `<option value="" disabled ${!row.agentKey ? 'selected' : ''}>Select Agent / Formulation...</option>`;
+            availableAgents.forEach(agent => {
+                optionsHtml += `<option value="${agent}" ${row.agentKey === agent ? 'selected' : ''}>${agent}</option>`;
+            });
+
+            rowDiv.innerHTML = `
+                <div class="form-group" style="margin-bottom: 0;">
+                    <label>Antimicrobial Agent</label>
+                    <select onchange="updateRowData('${row.id}', 'agentKey', this.value)">
+                        ${optionsHtml}
+                    </select>
+                </div>
+                <div class="form-group" style="margin-bottom: 0;">
+                    <label>${inputLabel}</label>
+                    <input type="number" min="0" step="1" value="${row.quantity || ''}" placeholder="0" 
+                           oninput="updateRowData('${row.id}', 'quantity', this.value)">
+                </div>
+                <button class="btn btn-danger" onclick="removeRow('${row.id}')" title="Remove Row">✕</button>
+                
+                <div class="row-metrics" id="metrics_${row.id}">
+                    Select an agent and enter quantity to view row metrics.
+                </div>
+            `;
+            container.appendChild(rowDiv);
+            
+            if (row.agentKey && row.quantity > 0) {
+                updateRowMetricsUI(row);
+            }
+        });
+    }
+
+    /**
+     * Updates the subtotal display for an individual row
+     */
+    function updateRowMetricsUI(row) {
+        const metricsDiv = document.getElementById(`metrics_${row.id}`);
+        if (!metricsDiv) return;
+
+        if (!row.agentKey || row.quantity <= 0) {
+            metricsDiv.innerHTML = 'Select an agent and enter quantity to view row metrics.';
+            return;
+        }
+
+        const factors = emissionFactors[state.type][row.agentKey];
+        const co2 = (factors.co2 * row.quantity).toExponential(2);
+        const mass = (factors.mass * row.quantity).toExponential(2);
+
+        metricsDiv.innerHTML = `
+            <span><strong>CO2e:</strong> ${co2} MT</span>
+            <span><strong>Waste:</strong> ${mass} kg</span>
+        `;
+    }
+
+    /**
+     * Calculates and updates the grand totals panel
+     */
+    function calculateTotals() {
+        let totals = { co2: 0, mass: 0, miles: 0, gas: 0, coal: 0, phones: 0 };
+
+        state.rows.forEach(row => {
+            if (row.agentKey && row.quantity > 0) {
+                const factors = emissionFactors[state.type][row.agentKey];
+                totals.co2 += factors.co2 * row.quantity;
+                totals.mass += factors.mass * row.quantity;
+                totals.miles += factors.miles * row.quantity;
+                totals.gas += factors.gas * row.quantity;
+                totals.coal += factors.coal * row.quantity;
+                totals.phones += factors.phones * row.quantity;
+            }
+        });
+
+        // Format and display (applying rounding rules appropriate for clinical display)
+        document.getElementById('totalCO2').innerHTML = `${totals.co2.toFixed(5)} <span class="unit">MT</span>`;
+        document.getElementById('totalMass').innerHTML = `${totals.mass.toFixed(5)} <span class="unit">kg</span>`;
+        document.getElementById('totalMiles').innerText = totals.miles.toFixed(2);
+        document.getElementById('totalGas').innerText = totals.gas.toFixed(2);
+        document.getElementById('totalCoal').innerText = totals.coal.toFixed(2);
+        document.getElementById('totalPhones').innerText = Math.round(totals.phones).toLocaleString();
+    }
+
+    /**
+     * Resets the entire calculator
+     */
+    function resetCalculator() {
+        if(confirm("Are you sure you want to clear all inputs?")) {
+            handleTypeChange(); // Re-initializes state based on current dropdown
+            calculateTotals();
+        }
+    }
+</script>
+
+</body>
+</html>
