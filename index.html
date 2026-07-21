@@ -325,42 +325,51 @@
     margin-left:5px;
   }
 
-  .equiv-list{padding:14px 20px 18px 20px;}
+  .equiv-list{padding:14px 20px 4px 20px;}
   .equiv-item{
     display:grid;
-    grid-template-columns:26px 1fr auto;
+    grid-template-columns:26px 1fr;
     gap:10px;
-    align-items:center;
-    padding:9px 0;
+    padding:11px 0;
+    border-top:1px solid var(--line);
   }
+  .equiv-item:first-child{border-top:none;}
   .equiv-glyph{
     width:26px;height:26px;
     display:flex;align-items:center;justify-content:center;
     color:var(--steel);
   }
   .equiv-glyph svg{width:20px;height:20px;}
-  .equiv-body .equiv-name{font-size:12.5px; color:var(--ink-soft); font-weight:500;}
-  .equiv-bar-track{
-    height:5px;
-    background:var(--panel-alt);
-    border-radius:4px;
-    margin-top:5px;
-    overflow:hidden;
+  .equiv-body{min-width:0;}
+  .equiv-name-row{
+    display:flex; justify-content:space-between; align-items:baseline;
+    margin-bottom:6px;
   }
-  .equiv-bar-fill{
-    height:100%;
-    background:linear-gradient(90deg,var(--steel),var(--teal));
-    border-radius:4px;
-    transition:width 0.35s ease;
-    width:0%;
-  }
+  .equiv-name{font-size:12.5px; color:var(--ink-soft); font-weight:500;}
   .equiv-value{
     font-family:'JetBrains Mono',monospace;
     font-weight:600;
     font-size:14.5px;
     color:var(--ink);
-    text-align:right;
   }
+  .equiv-context{font-size:10.5px; color:var(--ink-soft); margin-top:4px; opacity:0.85;}
+
+  /* Pictogram: each icon = one unit-per-icon, so the ICON COUNT itself changes shape
+     as totals grow, instead of four bars whose relative lengths never move (they're
+     all fixed multiples of the same CO2e number). */
+  .pictogram-row{
+    display:flex; flex-wrap:wrap; gap:3px; align-items:center; min-height:16px;
+  }
+  .pictogram-icon{
+    width:11px; height:11px; border-radius:3px;
+    background:linear-gradient(135deg,var(--steel),var(--teal));
+    flex:none;
+  }
+  .pictogram-icon.partial{opacity:0.4;}
+  .pictogram-more{
+    font-size:10.5px; color:var(--ink-soft); margin-left:4px; font-family:'JetBrains Mono',monospace;
+  }
+  .pictogram-empty .pictogram-icon{background:var(--panel-alt);}
 
   .interp-note{
     margin:0 20px 18px 20px;
@@ -377,6 +386,89 @@
     padding:14px 20px 18px 20px;
   }
   .reset-bar .btn{width:100%; text-align:center; justify-content:center; display:flex;}
+
+  /* ===== Per-drug contribution breakdown (donut + list) ===== */
+  .contrib-block{
+    padding:14px 20px 16px 20px;
+    border-bottom:1px solid var(--line);
+  }
+  .contrib-heading{
+    font-size:11px;
+    font-weight:600;
+    letter-spacing:0.05em;
+    text-transform:uppercase;
+    color:var(--ink-soft);
+    margin-bottom:10px;
+  }
+  .contrib-layout{
+    display:grid;
+    grid-template-columns:104px 1fr;
+    gap:16px;
+    align-items:center;
+  }
+  .contrib-donut{flex:none;}
+  .contrib-list{min-width:0;}
+  .contrib-row{
+    display:grid;
+    grid-template-columns:10px 1fr auto;
+    gap:7px;
+    align-items:center;
+    margin-bottom:7px;
+  }
+  .contrib-row:last-child{margin-bottom:0;}
+  .contrib-swatch{width:9px; height:9px; border-radius:2px;}
+  .contrib-label{
+    font-size:11.5px;
+    color:var(--ink);
+    white-space:nowrap;
+    overflow:hidden;
+    text-overflow:ellipsis;
+  }
+  .contrib-pct{
+    font-family:'JetBrains Mono',monospace;
+    font-size:11px;
+    color:var(--ink-soft);
+    text-align:right;
+  }
+  .contrib-empty{font-size:12px; color:var(--ink-soft);}
+  .contrib-other{font-size:11px; color:var(--ink-soft); margin-top:6px;}
+
+  /* ===== Compact "Additional Notes" panel ===== */
+  .insights-panel{margin-top:20px;}
+  .insights-head{
+    background:var(--clay);
+    color:#fff;
+    padding:16px 20px;
+    border-radius:var(--radius) var(--radius) 0 0;
+  }
+  .insights-head h2{color:#fff; font-size:15px;}
+  .insights-head .desc{color:#F7E6D9; font-size:12px; margin-top:3px;}
+
+  .insight-section{
+    padding:16px 20px;
+    border-bottom:1px solid var(--line);
+  }
+  .insight-section:last-child{border-bottom:none;}
+  .insight-title{
+    font-size:12px;
+    font-weight:700;
+    color:var(--ink);
+    margin-bottom:8px;
+  }
+  .insight-body{font-size:12px; color:var(--ink-soft); line-height:1.55;}
+  .insight-note{
+    font-size:10.5px;
+    color:var(--ink-soft);
+    margin-top:6px;
+    line-height:1.45;
+    font-style:italic;
+  }
+
+  .stat-inline{
+    font-family:'JetBrains Mono',monospace;
+    font-weight:600;
+    color:var(--clay);
+  }
 
   footer{
     max-width:1180px;
@@ -458,7 +550,7 @@
     <aside class="results-panel">
       <div class="panel">
         <div class="results-head">
-          <h2>Greenhouse Gas Equivalency Totals</h2>
+          <h2>Environmental Equivalency Totals</h2>
           <div class="desc">Calculated across all entered drugs</div>
         </div>
 
@@ -471,46 +563,78 @@
           <div class="result-value" id="res-mass">0<span class="unit">kg</span></div>
         </div>
 
+        <div class="contrib-block">
+          <div class="contrib-heading">CO&#8322;e by drug &mdash; composition</div>
+          <div class="contrib-layout">
+            <div class="contrib-donut" id="contrib-donut"></div>
+            <div class="contrib-list" id="contrib-content"></div>
+          </div>
+        </div>
+
         <div class="equiv-list">
           <div class="equiv-item">
             <div class="equiv-glyph" aria-hidden="true">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 13l1.5-4.5A2 2 0 0 1 6.4 7h11.2a2 2 0 0 1 1.9 1.5L21 13"/><rect x="2" y="13" width="20" height="6" rx="1.5"/><circle cx="7" cy="19.5" r="1.5"/><circle cx="17" cy="19.5" r="1.5"/></svg>
             </div>
             <div class="equiv-body">
-              <div class="equiv-name">Miles driven</div>
-              <div class="equiv-bar-track"><div class="equiv-bar-fill" id="bar-miles"></div></div>
+              <div class="equiv-name-row">
+                <span class="equiv-name">Miles driven</span>
+                <span class="equiv-value" id="res-miles">0</span>
+              </div>
+              <div class="pictogram-row" id="pict-miles"></div>
+              <div class="equiv-context" id="ctx-miles"></div>
             </div>
-            <div class="equiv-value" id="res-miles">0</div>
           </div>
           <div class="equiv-item">
             <div class="equiv-glyph" aria-hidden="true">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 21V6a2 2 0 0 1 2-2h6a2 2 0 0 1 2 2v15"/><path d="M4 11h10"/><path d="M14 8h2.5l2.7 2.7a1 1 0 0 1 .3.7V17a1 1 0 0 1-1 1h-1"/><circle cx="9" cy="18.5" r="1.3"/><path d="M17.5 11.5v0" /></svg>
             </div>
             <div class="equiv-body">
-              <div class="equiv-name">Gallons of gas</div>
-              <div class="equiv-bar-track"><div class="equiv-bar-fill" id="bar-gas"></div></div>
+              <div class="equiv-name-row">
+                <span class="equiv-name">Gallons of gas</span>
+                <span class="equiv-value" id="res-gas">0</span>
+              </div>
+              <div class="pictogram-row" id="pict-gas"></div>
+              <div class="equiv-context" id="ctx-gas"></div>
             </div>
-            <div class="equiv-value" id="res-gas">0</div>
           </div>
           <div class="equiv-item">
             <div class="equiv-glyph" aria-hidden="true">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><ellipse cx="12" cy="6" rx="8" ry="3"/><path d="M4 6v6c0 1.7 3.6 3 8 3s8-1.3 8-3V6"/><path d="M4 12v6c0 1.7 3.6 3 8 3s8-1.3 8-3v-6"/></svg>
             </div>
             <div class="equiv-body">
-              <div class="equiv-name">Pounds of coal</div>
-              <div class="equiv-bar-track"><div class="equiv-bar-fill" id="bar-coal"></div></div>
+              <div class="equiv-name-row">
+                <span class="equiv-name">Pounds of coal</span>
+                <span class="equiv-value" id="res-coal">0</span>
+              </div>
+              <div class="pictogram-row" id="pict-coal"></div>
+              <div class="equiv-context" id="ctx-coal"></div>
             </div>
-            <div class="equiv-value" id="res-coal">0</div>
           </div>
           <div class="equiv-item">
             <div class="equiv-glyph" aria-hidden="true">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="7" y="2" width="10" height="20" rx="2"/><path d="M10 6h4"/><path d="M11 18h2"/></svg>
             </div>
             <div class="equiv-body">
-              <div class="equiv-name">Phones charged</div>
-              <div class="equiv-bar-track"><div class="equiv-bar-fill" id="bar-phones"></div></div>
+              <div class="equiv-name-row">
+                <span class="equiv-name">Phones charged</span>
+                <span class="equiv-value" id="res-phones">0</span>
+              </div>
+              <div class="pictogram-row" id="pict-phones"></div>
+              <div class="equiv-context" id="ctx-phones"></div>
             </div>
-            <div class="equiv-value" id="res-phones">0</div>
+          </div>
+          <div class="equiv-item">
+            <div class="equiv-glyph" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 2C9 6 6 9.5 6 13.5a6 6 0 0 0 12 0C18 9.5 15 6 12 2z"/></svg>
+            </div>
+            <div class="equiv-body">
+              <div class="equiv-name-row">
+                <span class="equiv-name">Manufacturing discharge dilution needed</span>
+                <span class="equiv-value" id="res-pnec">&mdash;</span>
+              </div>
+              <div class="equiv-context" id="ctx-pnec">Switch to the Dose or Product Calculator to see this.</div>
+            </div>
           </div>
         </div>
 
@@ -522,13 +646,45 @@
           <button class="btn btn-ghost" id="reset-btn" type="button">Reset all entries</button>
         </div>
       </div>
+
+      <div class="panel insights-panel">
+        <div class="insights-head">
+          <h2>Additional Notes</h2>
+          <div class="desc">Route of administration &middot; cross-checking these figures</div>
+        </div>
+
+        <div class="insight-section">
+          <div class="insight-title">Route of administration (IV vs. oral)</div>
+          <div class="insight-body">
+            Every entry in this calculator is an IV/parenteral formulation, and this dataset does not include matching oral products, so no per-drug switch calculation is shown. For context: a published NHS analysis found IV ciprofloxacin's carbon footprint to be about 60&times; that of the oral tablet, and a separate 2024 study estimated a 20% reduction in unnecessary antibiotic courses could save roughly 4,200 tonnes CO&#8322;e per month across NHS England. IV-to-oral switching is a standard stewardship lever &mdash; add oral-formulation CO&#8322;e/waste factors to <span class="mono">DATA</span> to enable a real per-drug comparison here.
+          </div>
+        </div>
+
+        <div class="insight-section">
+          <div class="insight-title">Cross-checking these emission factors</div>
+          <div class="insight-body">
+            NHS England's public <a href="https://www.gov.uk/government/collections/medicine-carbon-footprint" target="_blank" rel="noopener">Medicine Carbon Footprint (MCF) Formulary</a>, built from the peer-reviewed MCF Classifier methodology, independently rates thousands of medicines (low/medium/high/very high). It's a useful place to sanity-check this workbook's CO&#8322;e figures for a given drug &mdash; this tool does not import or duplicate its per-product ratings.
+          </div>
+        </div>
+
+        <div class="insight-section">
+          <div class="insight-title">About the manufacturing discharge figure above</div>
+          <div class="insight-body">
+            Source: AMR Industry Alliance Predicted No-Effect Concentration (PNEC) table (rev. 2026). This models manufacturing-effluent dilution science &mdash; not what actually happens to clinical waste after hospital disposal &mdash; so treat it as an order-of-magnitude illustration, not a site-specific risk assessment. Antifungals/antivirals are outside this antibacterial-only framework and are excluded.
+          </div>
+        </div>
+      </div>
     </aside>
+
   </div>
 </main>
 
 <footer>
   Emission factors and per-agent, per-dose, and per-product CO&#8322;e and waste data are drawn from the source Antimicrobial Emissions Calculator workbook. Greenhouse gas equivalency conversions (miles driven, gallons of gas, pounds of coal, phones charged) are based on U.S. EPA methodology: <a href="https://www.epa.gov/energy/greenhouse-gases-equivalencies-calculator-calculations-and-references" target="_blank" rel="noopener">epa.gov/energy/greenhouse-gases-equivalencies-calculator</a>. This tool is intended to support antimicrobial stewardship and sustainability education and does not constitute clinical guidance.
+  <br><br>
+  Manufacturing discharge / resistance-selection-risk figures use the AMR Industry Alliance's published Predicted No-Effect Concentration (PNEC) table (rev. 2026), <a href="https://www.amrindustryalliance.org/" target="_blank" rel="noopener">amrindustryalliance.org</a>. This is not re-derived or independently re-verified beyond the public source cited in the code comments &mdash; treat it as indicative, not as a substitute for institutional environmental reporting.
 </footer>
+
 
 <script>
 /* ============================================================
@@ -543,6 +699,75 @@ const DATA = {
   prod: [{"n":"Acyclovir 250 mg/ 50 mL","co2":8.507569e-06,"w":0.091076666667},{"n":"Acyclovir 500 mg/ 100 mL","co2":8.632554e-06,"w":0.0967475},{"n":"Acyclovir 750 mg/ 150 mL","co2":1.2377058e-05,"w":0.136143333333},{"n":"Acyclovir 1000 mg/ 150 mL","co2":1.1931299e-05,"w":0.137668333333},{"n":"Amikacin 1200 mg/ 100 mL","co2":9.339487e-06,"w":0.0983725},{"n":"Amphotericin B liposomal (Ambisome) 480 mg/ 250 mL","co2":0.000180525618,"w":0.791905},{"n":"Ampicillin 2 g/ 100 mL MBP","co2":7.257811e-06,"w":0.0885296875},{"n":"Ampicillin-sulbactam 1.5 g/ 50 mL MBP","co2":9.289371e-06,"w":0.0888121875},{"n":"Ampicillin-sulbactam 3 g/ 100 mL MBP","co2":8.527613e-06,"w":0.0944871875},{"n":"Azithromycin 500 mg/ 250 mL VM","co2":1.4049784e-05,"w":0.198555},{"n":"Azithromycin 500 mg/ 250 mL","co2":1.5351246e-05,"w":0.192355},{"n":"Aztreonam 1 g/ 50 mL","co2":1.0352317e-05,"w":0.120401666667},{"n":"Aztreonam 1 g/ 100 mL MBP","co2":8.895381e-06,"w":0.0977975},{"n":"Aztreonam 2 g/ 100 mL MBP","co2":9.970761e-06,"w":0.1139646875},{"n":"Caspofungin 70 mg/ 250 mL","co2":1.5762292e-05,"w":0.211005},{"n":"Cefazolin 1 g/ 10 mL","co2":2.920392e-06,"w":0.06595},{"n":"Cefazolin 2 g/ 20 mL","co2":4.353873e-06,"w":0.08749},{"n":"Cefazolin 3 g/ 30 mL","co2":8.761176e-06,"w":0.19785},{"n":"Cefazolin 1 g/ 50 mL frozen premix","co2":7.737822e-06,"w":0.057193333333},{"n":"Cefazolin 2 g/ 100 mL frozen premix","co2":1.3383735e-05,"w":0.064276666667},{"n":"Cefazolin 3 g/ 100 mL","co2":9.746749e-06,"w":0.2208175},{"n":"Cefepime 1 g/ 100 mL MBP","co2":9.190717e-06,"w":0.1111975},{"n":"Cefepime 2 g/ 100 mL MBP","co2":9.199533e-06,"w":0.1115975},{"n":"Cefepime 1 g/ 50 mL frozen premix","co2":7.737822e-06,"w":0.057193333333},{"n":"Cefepime 2 g/ 100 mL frozen premix","co2":1.3383735e-05,"w":0.064276666667},{"n":"Cefiderocol 1000 mg/ 100 mL","co2":1.0334593e-05,"w":0.1195975},{"n":"Cefiderocol 2000 mg/ 100 mL","co2":1.4480592e-05,"w":0.11196},{"n":"Cefoxitin 1000 mg/ 50 mL","co2":1.0308985e-05,"w":0.124199166667},{"n":"Cefoxitin 2000 mg/ 100 mL","co2":1.0372809e-05,"w":0.127095},{"n":"Cefoxitin 2000 mg/ 100 mL MBP","co2":8.867477e-06,"w":0.102295},{"n":"Ceftaroline 600 mg/ 50 mL","co2":1.0879073e-05,"w":0.144301666667},{"n":"Ceftaroline 600 mg/ 100 mL MBP","co2":9.225981e-06,"w":0.1127975},{"n":"Ceftazidime 1000 mg/ 50 mL","co2":1.3733253e-05,"w":0.160701666667},{"n":"Ceftazidime 2000 mg/ 50 mL","co2":1.3733253e-05,"w":0.160701666667},{"n":"Ceftazidime 2000 mg/ 100 mL MBP","co2":1.2276317e-05,"w":0.1380975},{"n":"Ceftazidime-avibactam 2.5 g/ 100 mL","co2":1.0740129e-05,"w":0.1379975},{"n":"Ceftazidime-avibactam 2.5 g/ 100 mL MBP","co2":9.234797e-06,"w":0.1131975},{"n":"Ceftolozane-tazobactam 1.5 g/ 100 mL","co2":1.0736823e-05,"w":0.1378475},{"n":"Ceftolozane-tazobactam 1.5 g/ 100 mL MBP","co2":9.231491e-06,"w":0.1130475},{"n":"Ceftolozane-tazobactam 3 g/ 100 mL","co2":1.7055277e-05,"w":0.15265375},{"n":"Ceftriaxone 1 g/ 100 mL MBP","co2":1.1933117e-05,"w":0.1895175},{"n":"Ceftriaxone 2 g/ 100 mL MBP","co2":1.0686535e-05,"w":0.2060375},{"n":"Ceftriaxone 1 g/ 50 mL frozen premix","co2":1.0711642e-05,"w":0.146013333333},{"n":"Ceftriaxone 2 g/ 50 mL frozen premix","co2":1.0711642e-05,"w":0.146013333333},{"n":"Cefuroxime 750 mg/ 100 mL MBP","co2":9.766668e-06,"w":0.1258025},{"n":"Cefuroxime 750 mg/ 50 mL","co2":9.604766e-06,"w":0.161956666667},{"n":"Cefuroxime 1500 mg/ 50 mL","co2":9.624602e-06,"w":0.162856666667},{"n":"Cefuroxime 1500 mg/ 100 mL MBP","co2":7.99906e-06,"w":0.1326025},{"n":"Ciprofloxacin 400 mg/ 200 mL premix","co2":1.4569092e-05,"w":0.094281666667},{"n":"Clindamycin 300 mg/ 50 mL premix","co2":7.704762e-06,"w":0.055693333333},{"n":"Clindamycin 600 mg/ 50 mL premix","co2":7.704762e-06,"w":0.055693333333},{"n":"Clindamycin 900 mg/ 50 mL premix","co2":7.704762e-06,"w":0.055693333333},{"n":"Colistimethate 150 mg/ 100 mL","co2":1.2517811e-05,"w":0.1397025},{"n":"Daptomycin 500 mg/ 50 mL","co2":1.7703832e-05,"w":0.222971666667},{"n":"Daptomycin 750 mg/ 50 mL","co2":2.367557e-05,"w":0.254671666667},{"n":"Doxycycline 100 mg/ 250 mL","co2":1.1151331e-05,"w":0.1364275},{"n":"Doxycycline 100 mg/ 100 mL MBP","co2":9.068757e-06,"w":0.128936875},{"n":"Ertapenem 500 mg/ 50 mL","co2":1.1906761e-05,"w":0.212246666667},{"n":"Ertapenem 1 g/ 50 mL MBP","co2":1.0179663e-05,"w":0.1991346875},{"n":"Erythromycin 500 mg/ 100 mL","co2":7.787958e-06,"w":0.102905},{"n":"Fluconazole 200 mg/ 100 mL premix","co2":2.1780204e-05,"w":0.1623},{"n":"Fluconazole 400 mg/ 200 mL premix","co2":7.0417414e-05,"w":0.21307},{"n":"Ganciclovir 225 mg/ 100 mL","co2":1.203238e-05,"w":0.1307275},{"n":"Gentamicin 400 mg/ 100 mL","co2":8.308235e-06,"w":0.1211825},{"n":"Imipenem-cilastatin 1000 mg/ 250 mL","co2":2.0828861e-05,"w":0.1991325},{"n":"Isavuconazonium 372 mg/ 250 mL","co2":3.7235864e-05,"w":0.22613},{"n":"Levofloxacin 250 mg/ 50 mL premix","co2":2.5068204e-05,"w":0.168566666667},{"n":"Levofloxacin 500 mg/ 100 mL premix","co2":2.5067323e-05,"w":0.168526666667},{"n":"Levofloxacin 750 mg/ 150 mL premix","co2":2.5152838e-05,"w":0.172406666667},{"n":"Linezolid 600 mg/ 300 mL premix","co2":5.397191e-05,"w":0.138485},{"n":"Meropenem 500 mg/ 100 mL MBP","co2":8.056862e-06,"w":0.1108646875},{"n":"Meropenem 1 g/ 100 mL MBP","co2":8.694865e-06,"w":0.1178446875},{"n":"Meropenem 2 g/ 100 mL","co2":1.4819733e-05,"w":0.2273975},{"n":"Meropenem 2 g/ 100 mL MBP","co2":9.724085e-06,"w":0.1353975},{"n":"Meropenem-vaborbactam 4 g/ 250 mL","co2":2.0438555e-05,"w":0.273535},{"n":"Metronidazole 500 mg/ 100 mL premix","co2":2.2252851e-05,"w":0.086936666667},{"n":"Micafungin 100 mg/ 100 mL","co2":8.227091e-06,"w":0.1953675},{"n":"Minocycline 100 mg/ 100 mL MBP","co2":6.305286e-06,"w":0.1123025},{"n":"Minocycline 100 mg/ 250 mL","co2":7.747528e-06,"w":0.13424},{"n":"Minocycline 200 mg/ 250 mL","co2":1.086178e-05,"w":0.147215},{"n":"Nafcillin 2 g/ 100 mL MBP","co2":8.365714e-06,"w":0.0852925},{"n":"Nafcillin 1 g/ 50 mL frozen premix","co2":6.994366e-06,"w":0.034988333333},{"n":"Nafcillin 2 g/ 100 mL frozen premix","co2":1.264028e-05,"w":0.042071666667},{"n":"Penicillin G 3 million units/ 50 mL frozen premix","co2":6.994366e-06,"w":0.034988333333},{"n":"Pentamidine 300 mg/ 250 mL","co2":1.4988137e-05,"w":0.17588},{"n":"Piperacillin-tazobactam 2.25 g/ 50 mL frozen premix","co2":7.366094e-06,"w":0.046090833333},{"n":"Piperacillin-tazobactam 3.375 g/ 50 mL frozen premix","co2":7.366094e-06,"w":0.046090833333},{"n":"Piperacillin-tazobactam 4.5 g/ 100 mL frozen premix","co2":1.3012007e-05,"w":0.053174166667},{"n":"Posaconazole 300 mg/ 250 mL","co2":1.4920961e-05,"w":0.227207083333},{"n":"Remdesivir 100 mg/ 250 mL","co2":3.5175124e-05,"w":0.274005},{"n":"Remdesivir 100 mg/ 100 mL MBP","co2":3.0986697e-05,"w":0.2144675},{"n":"Remdesivir 200 mg/ 250 mL","co2":6.0208707e-05,"w":0.324505},{"n":"Rifampin 600 mg/ 250 mL","co2":1.7919521e-05,"w":0.13096625},{"n":"Sulfamethoxazole-trimethoprim 2000 mg-400 mg/ 500 mL","co2":1.6299076e-05,"w":0.150968333333},{"n":"Tigecycline 50 mg/ 100 mL","co2":9.495851e-06,"w":0.1341775},{"n":"Tigecycline 50 mg/ 100 mL MBP","co2":8.148105e-06,"w":0.1165275},{"n":"Vancomycin 500 mg/ 250 mL","co2":1.2489985e-05,"w":0.097115},{"n":"Vancomycin 750 mg/ 250 mL","co2":4.899282e-06,"w":0.11744},{"n":"Vancomycin 1 g/ 250 mL","co2":5.282685e-06,"w":0.12463},{"n":"Vancomycin 500 mg/ 100 mL frozen premix","co2":1.412719e-05,"w":0.086481666667},{"n":"Vancomycin 750 mg/ 150 mL frozen premix","co2":2.5370529e-05,"w":0.098448333333},{"n":"Vancomycin 1 g/ 200 mL frozen premix","co2":2.4821953e-05,"w":0.095308333333},{"n":"Vancomycin 1250 mg/ 250 mL (1.25 g vial)","co2":1.4733106e-05,"w":0.19889},{"n":"Vancomycin 1250 mg/ 250 mL (10 g vial)","co2":6.786722e-06,"w":0.1292525},{"n":"Vancomycin 1500 mg/ 250 mL","co2":7.145521e-06,"w":0.134268571429},{"n":"Vancomycin 1500 mg/ 500 mL","co2":1.5125602e-05,"w":0.216698333333},{"n":"Vancomycin 1750 mg/ 250 mL","co2":7.787384e-06,"w":0.141123333333},{"n":"Vancomycin 1750 mg/ 500 mL","co2":1.6140544e-05,"w":0.223598333333},{"n":"Vancomycin 2000 mg/ 250 mL","co2":8.685992e-06,"w":0.15072},{"n":"Vancomycin 2000 mg/ 500 mL","co2":1.6140544e-05,"w":0.161298333333}]
 };
 
+/* ============================================================
+   PNEC_TABLE — manufacturing discharge / resistance-selection-risk reference
+   data, keyed by the exact drug names used in DATA.dot (Dose/Product tab
+   entries are matched to a key via baseDrugKey(), which finds the longest key
+   that is a prefix of the entry name).
+
+   Each value is the lowest published PNEC (µg/L) — the lower of PNEC-ENV and
+   PNEC-MIC — from the AMR Industry Alliance's PNEC table, revision
+   16-June-2026 (https://www.amrindustryalliance.org/wp-content/uploads/UPDATED-Table-1-AMRIA-June-2026.pdf).
+   Combination products use the value for the antibacterial component only
+   (the partner beta-lactamase inhibitor — avibactam, tazobactam, vaborbactam,
+   sulbactam — is not separately listed in that table).
+
+   null = active ingredient not on the published table, or outside the scope
+   of the antibacterial-only PNEC framework (antifungals, antivirals). The
+   table's 0.05 µg/L "default" is intentionally NOT substituted here, since
+   that default is specifically for antibacterials missing data, not for
+   non-antibacterial drugs.
+   ============================================================ */
+const PNEC_TABLE = {
+  "Acyclovir": null,
+  "Amikacin": 16,
+  "Amphotericin B liposomal (Ambisome)": null,
+  "Ampicillin": 0.25,
+  "Ampicillin-sulbactam": 0.25,
+  "Azithromycin": 0.03,
+  "Aztreonam": 0.5,
+  "Caspofungin": null,
+  "Cefazolin": 0.47,
+  "Cefepime": 0.5,
+  "Cefiderocol": null, // not on the June 2026 PNEC table
+  "Cefoxitin": 8,
+  "Ceftaroline": 0.06,
+  "Ceftazidime": 0.5,
+  "Ceftazidime-avibactam": 0.5, // PNEC from ceftazidime component only
+  "Ceftolozane-tazobactam": 1.9, // PNEC from ceftolozane component only
+  "Ceftriaxone": 0.03,
+  "Cefuroxime": 0.5,
+  "Ciprofloxacin": 0.06,
+  "Clindamycin": 0.1,
+  "Colistimethate": 2, // PNEC from colistin (polymyxin E) parent compound
+  "Daptomycin": 1,
+  "Doxycycline": 2,
+  "Ertapenem": 0.125,
+  "Erythromycin": 0.5,
+  "Fluconazole": null,
+  "Ganciclovir": null,
+  "Gentamicin": 0.15,
+  "Imipenem-cilastatin": 0.125, // PNEC from imipenem component
+  "Isavuconazonium": null,
+  "Levofloxacin": 0.25,
+  "Linezolid": 3.5,
+  "Meropenem": 0.06,
+  "Meropenem-vaborbactam": 0.06, // PNEC from meropenem component
+  "Metronidazole": 0.125,
+  "Micafungin": null,
+  "Minocycline": 1,
+  "Nafcillin": null, // not on the June 2026 PNEC table
+  "Penicillin": 0.25, // "Penicillin G" = benzylpenicillin on the PNEC table
+  "Pentamidine": null,
+  "Piperacillin-tazobactam": 0.5, // PNEC from piperacillin component
+  "Posaconazole": null,
+  "Remdesivir": null,
+  "Rifampin": 0.06, // "Rifampicin" on the PNEC table
+  "Sulfamethoxazole-trimethoprim": 0.5, // PNEC from trimethoprim (lower of the two components)
+  "Tigecycline": 0.1,
+  "Vancomycin": 8
+};
+
 /* GHG equivalency emission factors (metric tons CO2e per unit) — Reference!S3:T6 */
 const GHG_FACTORS = {
   miles:  0.000391,
@@ -550,6 +775,7 @@ const GHG_FACTORS = {
   coal:   0.000907,
   phones: 0.0000151
 };
+
 
 const TAB_CONFIG = {
   dot: {
@@ -622,6 +848,66 @@ function calcEquivalents(co2){
     phones: co2 / GHG_FACTORS.phones
   };
 }
+
+/* ============ Manufacturing discharge risk helpers ============ */
+
+/* Matches a DATA row name (which may be "Vancomycin 1 g" or "Vancomycin 1 g/ 250 mL")
+   back to its base PNEC_TABLE key ("Vancomycin"), by longest-prefix match. DOT tab
+   names already equal a key exactly. */
+const PNEC_KEYS_BY_LENGTH = Object.keys(PNEC_TABLE).sort((a, b) => b.length - a.length);
+function baseDrugKey(name){
+  for(const k of PNEC_KEYS_BY_LENGTH){
+    if(name === k || name.startsWith(k + ' ')) return k;
+  }
+  return null;
+}
+
+/* Extracts the first labeled strength from a Dose/Product entry name, in mg.
+   "Vancomycin 500 mg" -> 500; "Cefazolin 1 g/ 10 mL" -> 1000;
+   "Sulfamethoxazole-trimethoprim 2000 mg-400 mg/ 500 mL" -> 2000 (primary component only);
+   "Penicillin G 3 million units/ 50 mL frozen premix" -> null (not a mass unit). */
+function parseMgFromName(name){
+  const m = name.match(/(\d+(?:\.\d+)?)\s*(mg|g)\b/i);
+  if(!m) return null;
+  const val = parseFloat(m[1]);
+  if(!isFinite(val)) return null;
+  return m[2].toLowerCase() === 'g' ? val * 1000 : val;
+}
+
+/* Per-drug CO2e contribution breakdown for the current tab's entered rows. */
+function computeContribBreakdown(tab, rows){
+  return rows
+    .map(row => ({ drug: row.drug, co2: calcRow(tab, row).co2 }))
+    .filter(r => r.co2 > 0)
+    .sort((a, b) => b.co2 - a.co2);
+}
+
+/* Total receiving-water dilution volume (liters) needed to bring each entered drug's
+   active-ingredient mass down to its published PNEC — summed across drugs as an
+   order-of-magnitude illustration (dilution volumes for different compounds are not
+   strictly additive in a real receiving water body, hence the caveat in the UI).
+   Requires a parseable per-administration mg amount, so it's Dose/Product-tab only. */
+function computePNECTotal(tab, rows){
+  if(tab === 'dot') return null;
+  const included = [];
+  const excluded = [];
+  rows.forEach(row => {
+    if(!isFinite(row.qty) || row.qty <= 0) return;
+    const key = baseDrugKey(row.drug);
+    const pnec = key ? PNEC_TABLE[key] : null;
+    const mg = parseMgFromName(row.drug);
+    if(pnec && mg){
+      const totalUg = mg * row.qty * 1000;
+      const liters = totalUg / pnec;
+      included.push({ drug: row.drug, liters });
+    } else {
+      excluded.push(row.drug);
+    }
+  });
+  const total = included.reduce((s, r) => s + r.liters, 0);
+  return { total, included, excluded };
+}
+
 
 /* ============ Rendering ============ */
 function populateDrugOptions(tab){
@@ -720,17 +1006,31 @@ function renderResults(){
   document.getElementById('res-co2').innerHTML = formatSci(totalCo2) + '<span class="unit">metric tons</span>';
   document.getElementById('res-mass').innerHTML = totalMass.toFixed(3) + '<span class="unit">kg</span>';
 
+  renderContribBreakdown(tab, rows, totalCo2);
+
   const eq = calcEquivalents(totalCo2);
   document.getElementById('res-miles').textContent = formatWhole(eq.miles);
   document.getElementById('res-gas').textContent = formatWhole(eq.gas);
   document.getElementById('res-coal').textContent = formatWhole(eq.coal);
   document.getElementById('res-phones').textContent = formatWhole(eq.phones);
 
-  const maxVal = Math.max(eq.miles, eq.gas, eq.coal, eq.phones, 1);
-  setBar('bar-miles', eq.miles, maxVal);
-  setBar('bar-gas', eq.gas, maxVal);
-  setBar('bar-coal', eq.coal, maxVal);
-  setBar('bar-phones', eq.phones, maxVal);
+  // Pictograms: icon COUNT scales with the absolute value, so the visual actually
+  // changes shape as totals grow — unlike four bars normalized to their own max,
+  // which are fixed multiples of the same CO2e number and always look identical
+  // relative to each other no matter what's entered.
+  renderPictogram('pict-miles', eq.miles, 250, 30);    // 1 icon \u2248 250 miles
+  renderPictogram('pict-gas', eq.gas, 50, 30);         // 1 icon \u2248 50 gallons
+  renderPictogram('pict-coal', eq.coal, 500, 30);      // 1 icon \u2248 500 lbs
+  renderPictogram('pict-phones', eq.phones, 25000, 30);// 1 icon \u2248 25,000 charges
+
+  // Relatable context under each equivalent — plain arithmetic conversions, not new
+  // science claims: ~2,800 mi is a commonly cited one-way NYC↔LA driving distance,
+  // so round trips = miles / 5,600; a 12-gallon fill-up is a typical car's tank size;
+  // 2,000 lb = 1 US (short) ton; a year of once-daily phone charges = 365 charges.
+  setContext('ctx-miles', eq.miles > 0 ? `\u2248 ${formatWhole(eq.miles / 5600)} round trips, NYC \u2194 LA` : '');
+  setContext('ctx-gas', eq.gas > 0 ? `\u2248 ${formatWhole(eq.gas / 12)} full 12-gal tank fill-ups` : '');
+  setContext('ctx-coal', eq.coal > 0 ? `\u2248 ${(eq.coal / 2000).toFixed(2)} short tons of coal` : '');
+  setContext('ctx-phones', eq.phones > 0 ? `\u2248 ${(eq.phones / 365).toFixed(1)} years of daily charging` : '');
 
   const validRowCount = rows.filter(r => r.qty > 0).length;
   if(validRowCount === 0){
@@ -738,11 +1038,101 @@ function renderResults(){
   } else {
     interpNote.innerHTML = `Across <strong>${validRowCount}</strong> drug${validRowCount === 1 ? '' : 's'}, this represents approximately the same CO&#8322;e footprint as driving <strong>${formatWhole(eq.miles)}</strong> miles in an average gasoline-powered vehicle.`;
   }
+
+  renderPNECEquivalent(tab, rows);
 }
 
-function setBar(id, val, max){
-  const pct = max > 0 ? Math.min(100, (val / max) * 100) : 0;
-  document.getElementById(id).style.width = pct + '%';
+function setContext(id, text){
+  document.getElementById(id).textContent = text;
+}
+
+/* Renders a row of small icons, one per unitPerIcon of value, capped at maxIcons with
+   a "\u00d7N total" label so huge totals don't render thousands of DOM nodes. */
+function renderPictogram(id, value, unitPerIcon, maxIcons){
+  const el = document.getElementById(id);
+  if(!isFinite(value) || value <= 0){ el.innerHTML = ''; return; }
+  const realCount = Math.max(1, Math.round(value / unitPerIcon));
+  const shown = Math.min(realCount, maxIcons);
+  let html = '';
+  for(let i = 0; i < shown; i++) html += '<div class="pictogram-icon"></div>';
+  if(realCount > maxIcons){
+    html += `<span class="pictogram-more">\u00d7${formatWhole(realCount)} total</span>`;
+  }
+  el.innerHTML = html;
+}
+
+const DONUT_COLORS = ['#0E6B5C', '#A9542F', '#2D6E8E', '#D6A23A', '#6E3A1F', '#7FD9BC', '#B9C4C1'];
+
+/* Builds a simple SVG donut using stacked circle strokes with stroke-dasharray —
+   no chart library needed, matches the existing vanilla-JS/inline-SVG style used
+   elsewhere in this file (see the equiv-glyph icons above). */
+function buildDonutSVG(segments, total){
+  const size = 104, r = 40, cx = 52, cy = 52;
+  const circ = 2 * Math.PI * r;
+  let cumulative = 0;
+  const circles = segments.map((s, i) => {
+    const pct = total > 0 ? s.co2 / total : 0;
+    const segLen = pct * circ;
+    const dashoffset = -cumulative;
+    cumulative += segLen;
+    return `<circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="${DONUT_COLORS[i % DONUT_COLORS.length]}" stroke-width="16" stroke-dasharray="${segLen} ${circ - segLen}" stroke-dashoffset="${dashoffset}"/>`;
+  }).join('');
+  return `<svg viewBox="0 0 ${size} ${size}" width="104" height="104" style="transform:rotate(-90deg)">${circles}</svg>`;
+}
+
+/* Donut chart + list breakdown of which entered drugs actually drive the CO2e total —
+   a genuine graph whose shape changes with the data, not just its scale. */
+function renderContribBreakdown(tab, rows, totalCo2){
+  const donutEl = document.getElementById('contrib-donut');
+  const listEl = document.getElementById('contrib-content');
+  const breakdown = computeContribBreakdown(tab, rows);
+  if(breakdown.length === 0 || totalCo2 <= 0){
+    donutEl.innerHTML = '';
+    listEl.innerHTML = `<div class="contrib-empty">No entries yet &mdash; add drugs on the left to see the CO&#8322;e composition.</div>`;
+    return;
+  }
+  const TOP_N = 6;
+  const top = breakdown.slice(0, TOP_N);
+  const otherCo2 = breakdown.slice(TOP_N).reduce((s, r) => s + r.co2, 0);
+  const segments = top.slice();
+  if(otherCo2 > 0) segments.push({ drug: `Other (${breakdown.length - TOP_N} more)`, co2: otherCo2 });
+
+  donutEl.innerHTML = buildDonutSVG(segments, totalCo2);
+  listEl.innerHTML = segments.map((r, i) => {
+    const pct = totalCo2 > 0 ? (r.co2 / totalCo2) * 100 : 0;
+    return `
+      <div class="contrib-row">
+        <div class="contrib-swatch" style="background:${DONUT_COLORS[i % DONUT_COLORS.length]}"></div>
+        <div class="contrib-label">${escapeHtml(r.drug)}</div>
+        <div class="contrib-pct">${pct.toFixed(1)}%</div>
+      </div>`;
+  }).join('');
+}
+
+/* Manufacturing discharge / resistance-selection-risk equivalency, shown alongside
+   the GHG equivalencies in the same output panel. */
+function renderPNECEquivalent(tab, rows){
+  const valEl = document.getElementById('res-pnec');
+  const ctxEl = document.getElementById('ctx-pnec');
+  const result = computePNECTotal(tab, rows);
+
+  if(!result){
+    valEl.textContent = '\u2014';
+    ctxEl.textContent = 'Switch to the Dose or Product Calculator to see this \u2014 the DOT Calculator has no per-administration dose amount to convert.';
+    return;
+  }
+  if(result.included.length === 0){
+    valEl.textContent = '\u2014';
+    ctxEl.textContent = 'Add drugs and quantities to compute a discharge-dilution estimate.';
+    return;
+  }
+  const olympicPools = result.total / 2500000; // ~2.5 million L per Olympic-size pool
+  valEl.textContent = formatWhole(result.total) + ' L';
+  let ctx = `\u2248 ${olympicPools < 0.01 ? '<0.01' : olympicPools.toFixed(2)} Olympic-size pools of dilution, summed across ${result.included.length} drug${result.included.length === 1 ? '' : 's'}`;
+  if(result.excluded.length > 0){
+    ctx += ` (no published PNEC, excluded: ${result.excluded.join('; ')})`;
+  }
+  ctxEl.textContent = ctx;
 }
 
 function formatSci(n){
